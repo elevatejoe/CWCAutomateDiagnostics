@@ -35,6 +35,18 @@
 			<Description>Generate a long lived InstallerToken - https://www.mspgeek.com/files/file/50-generate-agent-installertoken/</Description>
 			<DefaultValue></DefaultValue>
 		</Setting>
+		<Setting Name="InstallerTokenMac" IsServerOnly="false">
+			<Description>Generate a long lived InstallerToken - https://www.mspgeek.com/files/file/50-generate-agent-installertoken/</Description>
+			<DefaultValue></DefaultValue>
+		</Setting>
+		<Setting Name="InstallerTokenLinux" IsServerOnly="false">
+			<Description>Generate a long lived InstallerToken - https://www.mspgeek.com/files/file/50-generate-agent-installertoken/</Description>
+			<DefaultValue></DefaultValue>
+		</Setting>
+		<Setting Name="DefaultLocationID" IsServerOnly="false">
+			<Description>Default LocationID to use for Reinstall if no LocationID is detected.</Description>
+			<DefaultValue>1</DefaultValue>
+		</Setting>
 		<Setting Name="MaintenanceMode" IsServerOnly="false">
 			<Description>1 = Enable, 0 = Disable</Description>
 			<DefaultValue>0</DefaultValue>

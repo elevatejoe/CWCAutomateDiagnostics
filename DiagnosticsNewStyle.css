@@ -20,6 +20,12 @@
 	display: none;
 }
 
+/* 2023.10.17 -- Joe McCall | So the Diagnostic Action in the context menu aligns correctly. */
+
+.GetInfoPer {
+	text-align: left;
+}
+
 .success,
 .failed {
 	font-weight: bold !important;

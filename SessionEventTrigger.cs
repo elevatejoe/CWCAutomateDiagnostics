@@ -43,7 +43,7 @@ public class SessionEventTriggerAccessor : IAsyncDynamicEventTrigger<SessionEven
 						await SessionManagerPool.Demux.UpdateSessionAsync(
 							"AutomateDiagnostics", 
 							session.SessionID, 
-							ExtensionContext.Current.GetSettingValue("SetUseMachineName") == "1" ? "" : session.Name, 
+							ExtensionContext.Current.GetSettingValue("SetUseMachineName") == "1" ? "" : sessionEventTriggerEvent.Session.Name,
 							session.IsPublic, 
 							session.Code, 
 							session.CustomPropertyValues

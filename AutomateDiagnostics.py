@@ -6,46 +6,73 @@ import base64
 import getopt
 import sys
 import cgi
+import html	#Added to fix escape error in Python3
 
 def system_call(command):
 	p = subprocess.Popen([command], stdout=subprocess.PIPE, shell=True)
 	return p.stdout.read()
 
-# Read state file for info
-with open("/usr/local/ltechagent/state","r") as read_file:
-	data = json.load(read_file)
+if os.path.exists("/usr/local/ltechagent/state"):
 
-lterrors = ""
-try:
-	opts, args = getopt.getopt(sys.argv[1:],"e")
-	for opt, arg in opts:
-		if opt == '-e':
-			with open("/usr/local/ltechagent/agent.log","r") as log_file:
-				lterrors = cgi.escape(log_file.read())
-except getopt.GetoptError:
-	pass
+	# Read state file for info
+	with open("/usr/local/ltechagent/state","r") as read_file:
+		data = json.load(read_file)
 
+	# Get last contact date
+	lc = data["last_contact"]
+	last_contact = "{0}/{1}/{2} {3}:{4:02d}:{5:02d}".format(lc["month"],lc["day_of_month"],lc["year"],lc["hour"],lc["min"],lc["sec"])
 
-lterrors_bytes = lterrors.encode("ascii")
-lterrors_b64_bytes = base64.b64encode(lterrors_bytes)
-lterrors_str = lterrors_b64_bytes.decode("ascii")
+	old_version = data["version"]
 
-# Get last contact date
-lc = data["last_contact"]
-last_contact = "{0}/{1}/{2} {3}:{4:02d}:{5:02d}".format(lc["month"],lc["day_of_month"],lc["year"],lc["hour"],lc["min"],lc["sec"])
+	system_call("/usr/local/ltechagent/ltupdate")
 
-old_version = data["version"]
+	# Read state file for info
+	with open("/usr/local/ltechagent/state","r") as read_file:
+		data = json.load(read_file)
 
-system_call("/usr/local/ltechagent/ltupdate")
+	if old_version != data["version"]:
+		update = "Updated from "+old_version+" to "+ data["version"]
+	else:
+		update = "Already updated to "+ data["version"]
 
-# Read state file for info
-with open("/usr/local/ltechagent/state","r") as read_file:
-	data = json.load(read_file)
+	server_addr = data["last_good_server_url"]
+	version = data["version"]
+	id = data['computer_id']
+	clientid = data['client_id']
+	online = data["is_signed_in"]
 
-if old_version != data["version"]:
-	update = "Updated from "+old_version+" to "+ data["version"]
 else:
-	update = "Already updated to "+ data["version"]
+
+	server_addr = 'Not Found'
+	last_contact = ''
+	version = ''
+	update = ''
+	id = ''
+	clientid = ''
+	online = ''
+
+if os.path.exists("/usr/local/ltechagent/agent.log"):
+
+	lterrors = ""
+
+	try:
+		opts, args = getopt.getopt(sys.argv[1:],"e")
+		for opt, arg in opts:
+			if opt == '-e':
+				with open("/usr/local/ltechagent/agent.log","r") as log_file:
+					lterrors = html.escape(log_file.read())
+					#Changed from cgi.escape to html.escape to resolve errors in Python3
+
+	except getopt.GetoptError:
+		pass
+
+	lterrors_bytes = lterrors.encode("ascii")
+	lterrors_b64_bytes = base64.b64encode(lterrors_bytes)
+	lterrors_str = lterrors_b64_bytes.decode("ascii")
+
+else:
+
+	lterrors_str = "Log file not found"
 
 # Check services
 if platform.system() == 'Darwin':
@@ -75,14 +102,14 @@ elif platform.system() == 'Linux':
 		statusname = "Stopped"
 	svc_ltsvc = { "Status": statusname, "User": "ltechagent", "Start Mode": "Auto"}
 
-diag_result = { 
-	'server_addr': data["last_good_server_url"], 
+diag_result = {
+	'server_addr': server_addr,
 	'lastcontact': last_contact,
 	'update': update,
-	'version': data["version"],
-	'id': data['computer_id'],
-	'clientid': data['client_id'],
-	'online': data["is_signed_in"],
+	'version': version,
+	'id': id,
+	'clientid': clientid,
+	'online': online,
 	'svc_ltservice': svc_ltsvc,
 	'lterrors': lterrors_str
 }
