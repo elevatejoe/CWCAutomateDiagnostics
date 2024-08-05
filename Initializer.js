@@ -275,7 +275,8 @@ SC.event.addGlobalHandler(SC.event.PreRender, function (eventArgs) {
 function showReinstallPrompt (osName) {
   //console.log(osName);
   try {
-    var locationId = $('#locationid').innerHTML
+    //2024.08.05 -- Joe McCall | As of at least 24.1.9, innerHTML started returning the raw <span> element; this gets the text content then drops the checkmark/x and space before the ID.
+    var locationId = $('#locationid').innerText.substring(2);
   } catch {}
   var installertoken = getInstallerToken(osName)
   SC.dialog.showModalDialogRaw(
